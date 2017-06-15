@@ -1,9 +1,8 @@
 #pragma once
 
 #include "Eigen/Dense"
-#include "MeasurementModel.h"
 
-class LidarMeasurementModel : public MeasurementModel {
+class LidarMeasurementModel {
 public:
   Eigen::MatrixXd H_, R_;
 

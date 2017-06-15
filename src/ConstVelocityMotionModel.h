@@ -1,9 +1,8 @@
 #pragma once
 
 #include "Eigen/Dense"
-#include "MotionModel.h"
 
-class ConstVelocityMotionModel : public MotionModel {
+class ConstVelocityMotionModel {
 public:
   Eigen::MatrixXd F_, Q_;
   double noise_ax_, noise_ay_;
