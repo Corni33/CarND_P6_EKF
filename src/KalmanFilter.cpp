@@ -13,35 +13,38 @@ void KalmanFilter::initialize(const MeasurementPackage &measurement_pack) {
 
   if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
 
+    std::cout << "init with RADAR" << std::endl;
+
     // convert radar data from polar to cartesian coordinates and initialize state
     double rho = measurement_pack.raw_measurements_(0);
     double phi = measurement_pack.raw_measurements_(1);
     double rho_dot = measurement_pack.raw_measurements_(2);
 
     x_(0) = rho*cos(phi);
-    x_(1) = -rho*sin(phi); // '-' sign because of sign convention for phi
+    x_(1) = rho*sin(phi); 
 
     /* assumption for initializing the velocity: 
     * the orientation of the object's velocity vector is phi (i.e. the object is moving straight towards or away from us)
     * (an assumption is needed because there are 4 degrees of freedom (state variables) and only three constraints (radar measurement variables) )
     */
     x_(2) = rho*cos(rho_dot);
-    x_(3) = -rho*sin(rho_dot);
+    x_(3) = rho*sin(rho_dot);
 
     // initialize covariance
     double var_rho = radarMeasModel_.R_(0, 0);
-    double var_rho_dot = radarMeasModel_.R_(2, 2);
 
     // reasoning: 
-    // --> rho     is a distance measurement, so the variance of x- and y-position should be in the magnitude of var_rho
-    // --> rho_dot is a velocity measurement, so the variance of x- and y-velocity should be in the magnitude of var_rho_dot
+    // rho is a distance measurement, so the variance of x- and y-position should be in the magnitude of var_rho
+    // vx and vy are initialized with high uncertainty as we cannot determine vx and vy from rho_dot alone
     P_(0, 0) = var_rho;
     P_(1, 1) = var_rho;
-    P_(2, 2) = var_rho_dot;
-    P_(3, 3) = var_rho_dot;
+    P_(2, 2) = 10; 
+    P_(3, 3) = 10;
 
   }
   else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
+
+    std::cout << "init with LIDAR" << std::endl;
 
     // initialize state     
     x_(0) = measurement_pack.raw_measurements_(0);
@@ -55,8 +58,8 @@ void KalmanFilter::initialize(const MeasurementPackage &measurement_pack) {
 
     P_(0, 0) = sigma_x;
     P_(1, 1) = sigma_y;
-    P_(2, 2) = 5; // high uncertainty, i.e. no idea about the initial velocity
-    P_(3, 3) = 5;
+    P_(2, 2) = 10; // high uncertainty, i.e. no idea about the initial velocity
+    P_(3, 3) = 10;
   }
 
   previous_timestamp_ = measurement_pack.timestamp_;
